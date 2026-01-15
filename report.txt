@@ -1,0 +1,83 @@
+How to Run the Code
+1. Have all files in the same folder.
+2. Compile using: make
+3. Run the program: ./cpu
+4. The program will read and execute all instructions from PP3_input.txt and print the CPU’s state after each operation.
+
+Program Overview
+This program simulates a simplified ARM-like CPU with:
+- 12 registers (R0–R11)
+- Memory array of 5 elements corresponding to addresses 0x100–0x110
+- NZCV flags to track arithmetic and comparison results
+- Conditional execution for all instructions
+- Branching functionality for extra credit
+
+All arithmetic and logical operations use 32-bit unsigned integers.
+Bitwise operations and shift operations are implemented using C++ bitwise operators.
+
+Working Process
+1. The program reads each line from the input file and stores it.
+2. Each line is parsed into an opcode, condition suffix, and operands.
+3. Before execution, the condition is checked using the NZCV flags.
+   - If the condition is false, the instruction is skipped.
+   - If the condition is true, the instruction executes.
+4. After each instruction, the program prints:
+   - The executed instruction
+   - The updated register values
+   - The NZCV flag states
+   - The memory array
+
+Operations Explained
+Instruction        Description                                 Example
+MOV               Move immediate or register value             MOV R0,#0x14
+MVN               Bitwise NOT of a register                    MVN R1,R2
+ADD / SUB         Arithmetic addition or subtraction           ADD R1,R2,#1
+AND / ORR / EOR   Bitwise logical operations                   EOR R3,R1,#3
+ADDS              ADD with flag update                         ADDS R0,R1,R2
+CMP               Compare two values and update NZCV           CMP R0,R1
+LSL / LSR         Logical shifts left/right                    LSL R3,R2,#2
+LDR / STR         Load/store using memory address in register  LDR R3,[R6]
+BEQ label         Branch if Zero flag = 1 (extra credit)       BEQ SKIP
+
+Test Cases and Expected Outputs
+MOV R0,#0x14                -> R0 = 0x14
+MOV R1,#0xA                 -> R1 = 0xA
+CMP R0,R1                   -> NZCV = 0010 (R0 > R1)
+ADDGT R2,R0,R1              -> Executes, R2 = 0x1E
+ADDEQ, SUBLT                -> Skipped
+ADDS R0,R1,R2               -> R0 = 0x28, NZCV = 0000
+CMP R2,#50                  -> NZCV = 1000 (R2 < #50)
+EORLT R5,R2,#3              -> Executes, R5 = 0x1D
+ORRS R3,R2,#15              -> Executes, R3 = 0x1F
+CMP R5,#0x1D                -> Equal, NZCV = 0110
+LSRGE R7,R5,#2              -> Executes, R7 = 0x7
+LSLNE R8,R5,#3              -> Skipped
+CMP R8,R9                   -> Equal, NZCV = 0110
+MOVGT R10,R8                -> Skipped
+MVNEQ R11,R8                -> Executes, R11 = 0xFFFFFFFF
+MOV R6,#0x104               -> R6 = 0x104
+STRNE R3,[R6]               -> Stores 0x1F into memory
+LDRGT R9,[R6]               -> Loads 0x1F into R9
+CMP R7,#7                   -> Equal, NZCV = 0110
+BEQ SKIP                    -> Branch taken (extra credit)
+ADD R2,R2,#1                -> Skipped
+SKIP SUB R3,R3,#1           -> Executes, R3 = 0x1E
+
+Final State:
+R3 = 0x1E, R2 = 0x1E, R7 = 0x7, R9 = 0x1F
+Memory: 0x0 0x1F 0x0 0x0 0x0
+NZCV = 0110
+
+Extra Credit
+The BEQ branch instruction is fully implemented and functional. It checks the Zero flag (Z = 1) 
+and jumps to the label, skipping the instructions between the branch and label. The program 
+correctly jumps to SKIP and continues execution.
+
+Invalid Cases
+- Invalid registers ignored.
+- Invalid immediate or memory addresses outside 0x100–0x110 are skipped.
+
+Conclusion
+This project successfully simulates a CPU executing arithmetic, logic, and memory operations with 
+conditional and branching behavior. All register, flag, and memory updates are displayed in 
+hexadecimal format. The extra credit is implemented and works correctly.
